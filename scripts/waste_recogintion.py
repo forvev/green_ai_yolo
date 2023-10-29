@@ -1,8 +1,10 @@
-from fastapi import FastAPI
-import ultralytics
+from fastapi import FastAPI, Query
+from ultralytics import YOLO
 from pydantic import BaseModel
 import base64
-from io import BytesIO
+import io
+from PIL import Image
+from typing import Dict
 from PIL import Image
 
 app = FastAPI()
@@ -10,24 +12,24 @@ app = FastAPI()
 class PhotoData(BaseModel):
     photo_base64: str
 
-@app.get("/")
+@app.post("/")
 async def root():
     return {"message": "Hello World"}
 
 
 @app.post("/recognition")
 async def yolo_recognition(photo_data: PhotoData):
-    # Decode the base64-encoded photo data
     try:
-        image_bytes = base64.b64decode(photo_data.photo_base64)
-        image = Image.open(BytesIO(image_bytes))
+        base64_str = photo_data.photo_base64
+        img = Image.open(io.BytesIO(base64.decodebytes(bytes(base64_str, "utf-8"))))
         
-        # Here, you can process the 'image' using your recognition logic (e.g., YOLO)
-        # Example: yolo_result = perform_yolo_recognition(image)
-        
-        # For now, let's return a placeholder response
-        message = "YOLO recognition performed on the uploaded photo."
-        
-        return {"message": message}
+        model = YOLO('yolov8n.pt')
+        results = model(img, show=True)
+
+        response = {"message": f"Received argument: {results}"}
+        return response
     except Exception as e:
-        return {"error": f"Error processing the photo: {str(e)}"}
+        # Handle exceptions if any
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+        
+        return {"message": "message"}
