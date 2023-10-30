@@ -6,6 +6,8 @@ import io
 from PIL import Image
 from typing import Dict
 from PIL import Image
+from fastapi.exceptions import HTTPException
+
 
 app = FastAPI()
 
@@ -23,10 +25,15 @@ async def yolo_recognition(photo_data: PhotoData):
         base64_str = photo_data.photo_base64
         img = Image.open(io.BytesIO(base64.decodebytes(bytes(base64_str, "utf-8"))))
         
-        model = YOLO('yolov8n.pt')
-        results = model(img, show=True)
+        model = YOLO('yolov8x.pt')
+        results = model.predict(img, show=True)
+        
+        elements_list = []
+        for box in results[0].boxes:
+            class_id = results[0].names[box.cls[0].item()]
+            elements_list.append(class_id)
 
-        response = {"message": f"Received argument: {results}"}
+        response = {"recognized elemenets": f"{elements_list}"}
         return response
     except Exception as e:
         # Handle exceptions if any
