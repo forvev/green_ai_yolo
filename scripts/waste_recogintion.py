@@ -8,7 +8,6 @@ from typing import Dict
 from PIL import Image
 from fastapi.exceptions import HTTPException
 
-
 app = FastAPI()
 
 class PhotoData(BaseModel):
@@ -33,7 +32,7 @@ async def yolo_recognition(photo_data: PhotoData):
             class_id = results[0].names[box.cls[0].item()]
             elements_list.append(class_id)
 
-        response = {"recognized elemenets": f"{elements_list}"}
+        response = {"recognized_elemenets": f"{elements_list}"}
         return response
     except Exception as e:
         # Handle exceptions if any
