@@ -24,7 +24,8 @@ async def yolo_recognition(photo_data: PhotoData):
         base64_str = photo_data.photo_base64
         img = Image.open(io.BytesIO(base64.decodebytes(bytes(base64_str, "utf-8"))))
         
-        model = YOLO('yolov8x.pt')
+        #model = YOLO('yolov8x.pt')
+        model = YOLO('best.pt')
         results = model.predict(img, show=True)
         
         elements_list = []

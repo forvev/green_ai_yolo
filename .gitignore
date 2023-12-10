@@ -1,3 +1,4 @@
 *.pyc
 *.pt
 *.json
+*.DS_Store
