@@ -1,16 +1,16 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI
+import io
+from fastapi.exceptions import HTTPException
+
+
+#image recognition
 from ultralytics import YOLO
 from pydantic import BaseModel
 import base64
-import io
 from PIL import Image
-from typing import Dict
-from PIL import Image
-from fastapi.exceptions import HTTPException
 
 #text_generation
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from llama_cpp import Llama
 
 app = FastAPI()
 
@@ -59,16 +59,31 @@ async def yolo_recognition(photo_data: PhotoData):
         # Handle exceptions if any
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
             
-# @app.post("/text_generation")
-# async def text_generation(question_arg: QuestionData):
-#     # torch.set_default_device("cuda")
-#     # torch.cuda.empty_cache()
+@app.post("/text_generation")
+async def text_generation(question_arg: QuestionData):
+    model_path = "/Users/artur/Desktop/BachelorsThesis/green_ai_llama/llama/llama-2-7b-chat/ggml-model-f32_q4_0.bin" #ggml-model-f16_q4_1.bin, ggml-model-f32_q4_0.bin
+    model = Llama(model_path = model_path,
+                #n_ctx = 512,            # context window size
+                #n_gpu_layers = 1,        # enable GPU
+                n_threads = 8,
+                use_mlock = False)        # enable memory lock so not swap
+
+
+    prompt = f"""
+    [INST]<<SYS>>
+    You are a helpful, respectful and honest assistant. The answer has to be short and coherent.
+    Always answer as helpfully as possible, 
+    while being safe.  Your answers should not include any harmful, unethical, racist, sexist, toxic, 
+    dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in 
+    nature. If a question does not make any sense, or is not factually coherent, explain why instead of 
+    answering something not correct. If you don't know the answer to a question, please don't share false information.
+
+    {question_arg}
+    [/INST]
+    """
+
+    response = model(prompt = prompt, temperature = 0.2)
     
-#     question = question_arg.question
-#     model = AutoModelForCausalLM.from_pretrained("microsoft/phi-2", torch_dtype=torch.float32, device_map="cpu", trust_remote_code=True)
-#     tokenizer = AutoTokenizer.from_pretrained("microsoft/phi-2", trust_remote_code=True)
-    
-#     inputs = tokenizer(question, return_tensors="pt", return_attention_mask=False)
-#     outputs = model.generate(**inputs, max_length=200)
-#     text = tokenizer.batch_decode(outputs)[0]
-#     print(text)
+    return response
+
+
