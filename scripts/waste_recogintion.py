@@ -33,7 +33,7 @@ async def yolo_recognition(photo_data: PhotoData):
         
         #model = YOLO('yolov8x.pt')
         model = YOLO('../models/best.pt')
-        results = model.predict(img, show=True)
+        results = model.predict(img, show=True, conf=0.4)
         
         result_dict_list = []
 
