@@ -25,7 +25,7 @@ async def root():
     return {"message": "Hello World"}
 
 
-@app.post("/recognition")
+@app.post("/imageRecognition")
 async def yolo_recognition(photo_data: PhotoData):
     try:
         base64_str = photo_data.photo_base64
@@ -59,7 +59,7 @@ async def yolo_recognition(photo_data: PhotoData):
         # Handle exceptions if any
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
             
-@app.post("/text_generation")
+@app.post("/textGeneration")
 async def text_generation(question_arg: QuestionData):
     model_path = "/Users/artur/Desktop/BachelorsThesis/green_ai_llama/llama/llama-2-7b-chat/ggml-model-f32_q4_0.bin" #ggml-model-f16_q4_1.bin, ggml-model-f32_q4_0.bin
     model = Llama(model_path = model_path,

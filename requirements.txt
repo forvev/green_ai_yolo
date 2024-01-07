@@ -1,1 +1,3 @@
 fastapi, uvicorn, ultralytics
+llama.cpp
+llama-cpp-python
